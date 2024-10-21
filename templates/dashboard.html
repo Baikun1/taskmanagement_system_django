@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        {% if messages %}
+        <div class="alert-container">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }}" role="alert">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+        <h1 class="text-center">Welcome to the Dashboard</h1>
+
+        <!-- Notifications Section -->
+        {% if notifications %}
+            <div class="alert alert-info mt-4">
+                <h4>Notifications</h4>
+                <ul>
+                    {% for notification in notifications %}
+                        <li>{{ notification.task }} is assigned by {{notification.user}}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        {% if privileges == 'admin' %}
+            <div class="alert alert-info text-center mt-4">
+                <h2>Admin Features</h2>
+                <p>You can view and manage all tasks.</p>
+            </div>
+            <!-- Task Creation Form -->
+            <div class="card mt-4">
+                <div class="card-header bg-primary text-white">
+                    <h4>Create a New Task</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'create_task' %}">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="task_name">Task Name:</label>
+                            <input type="text" class="form-control" name="task_name" placeholder="Enter task name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="due_date">Due Date:</label>
+                            <input type="datetime-local" class="form-control" name="due_date" required>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Create Task</button>
+                    </form>
+                </div>
+            </div>
+        {% else %}
+            <div class="alert alert-warning text-center mt-4">
+                <h2>User Features</h2>
+                <p>You can only view incomplete tasks.</p>
+            </div>
+        {% endif %}
+
+        <!-- Task List -->
+        <h3 class="mt-5">Task List</h3>
+        <ul class="list-group mt-3">
+            {% for task in tasks %}
+                <li class="list-group-item">
+                    <strong>{{ task.task_name }}</strong> - Due: {{ task.due_date }} 
+                    {% comment %} <span class="badge badge-{{ 'success' if task.is_completed else 'warning' }}">
+                        {{ 'Completed' if task.is_completed else 'Incomplete' }}
+                    </span> {% endcomment %}
+                </li>
+            {% endfor %}
+        </ul>
+
+        <div class="mt-4 text-center">
+            <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
